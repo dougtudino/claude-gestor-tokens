@@ -8,6 +8,12 @@
       "source": "./",
       "description": "Especialista em Claude Code: contexto, sessões, modelos e organização de projetos.",
       "category": "productivity"
+    },
+    {
+      "name": "gestor-popups",
+      "source": "./popups",
+      "description": "Popups do Gestor de Tokens: faixa com botões (compactar, continuar, trocar modelo), menu /gestor e status do contexto.",
+      "category": "productivity"
     }
   ]
 }

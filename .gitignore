@@ -4,3 +4,5 @@ CLAUDE.local.md
 .claude/settings.local.json
 .claude/sessoes/
 tests/tmp/
+popups/.claude-plugin/types/
+popups/tsconfig.json

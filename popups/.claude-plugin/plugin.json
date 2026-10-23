@@ -1,0 +1,6 @@
+{
+  "name": "gestor-popups",
+  "version": "1.0.0",
+  "description": "Popups do Gestor de Tokens: faixa com botões (compactar, continuar, trocar modelo), menu /gestor e status do contexto.",
+  "author": { "name": "Douglas Tudino" }
+}

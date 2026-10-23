@@ -31,6 +31,12 @@ claude plugin marketplace add dougtudino/claude-gestor-tokens
 claude plugin install gestor-tokens@gestor-tokens
 ```
 
+E os **popups** (recomendado — o gestor pede, você clica):
+
+```
+/plugin install gestor-popups@gestor-tokens
+```
+
 Requisito: **Node.js 18+** no PATH (os hooks são scripts Node sem dependências; funcionam em
 Windows, macOS e Linux).
 
@@ -52,6 +58,23 @@ Para testar sem instalar: `claude --plugin-dir ./claude-gestor-tokens`.
 
 E o subagente **`gestor-tokens:gestor-tokens`** — chame com "@gestor-tokens" ou peça
 "pergunta pro gestor de tokens…". Ele também é acionado sozinho quando faz sentido.
+
+## Popups: o gestor pede, você clica (`gestor-popups`)
+
+Um mod do Claude Code (API de plugins com interface, no app desktop e no terminal):
+
+| Quando | Faixa acima da caixa de mensagem |
+|---|---|
+| Sessão nova num projeto com nota | `📌 Última sessão: …` → **[Continuar de onde parei]** **[Assunto novo]** |
+| Contexto em 70% do ponto de compactação | `💾 Contexto em 72%…` → **[Compactar agora]** **[Depois]** |
+| Contexto em 90% | `⚠️ …` → **[Compactar agora]** **[Depois]** |
+| Pedido simples (renomear, formatar, status…) no Opus/Fable | `🧠 O Sonnet faz isso pela metade do preço` → **[Trocar para Sonnet]** **[Manter]** |
+
+- **`/gestor`** abre um menu com opções: Salvar nota · Compactar agora · Checkup · Supervisionar sessões.
+- **Status fixo** sob a caixa: `🧠 Opus · contexto 34% de 300k (102k) · $1.84`.
+- **Toasts** quando compacta, troca de modelo, etc.
+- "Compactar agora" compacta de verdade (mesma ação do `/compact`), com instruções do que manter.
+- "Depois" não insiste na mesma faixa; volta só na próxima (90%) ou depois de compactar.
 
 ## Orgânico: o que roda sem você pedir
 
@@ -141,6 +164,7 @@ hooks/hooks.json  SessionStart, UserPromptSubmit, PostCompact, SessionEnd
 scripts/          hooks, statusline e relatorio-sessoes (supervisor) em Node puro
 templates/        CLAUDE.md modelo
 tests/            teste dos hooks: node tests/testar-hooks.js
+popups/           plugin gestor-popups (mod): hooks/register.tsx + tests (claude plugin test ./popups)
 PROMPT.md         o prompt-mestre que define o comportamento do agente
 ```
 
