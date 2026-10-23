@@ -1,0 +1,11 @@
+{
+  "name": "gestor-tokens",
+  "displayName": "Gestor de Tokens",
+  "version": "1.0.0",
+  "description": "Especialista em Claude Code: avisa quando o contexto cresce, salva e retoma sessões, escolhe o modelo certo, organiza projetos e ensina o jeito certo de usar a ferramenta.",
+  "author": { "name": "Douglas Tudino" },
+  "homepage": "https://github.com/dougtudino/claude-gestor-tokens",
+  "repository": "https://github.com/dougtudino/claude-gestor-tokens",
+  "license": "MIT",
+  "keywords": ["tokens", "contexto", "sessoes", "compact", "produtividade", "pt-br"]
+}

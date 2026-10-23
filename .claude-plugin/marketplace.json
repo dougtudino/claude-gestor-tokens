@@ -1,0 +1,13 @@
+{
+  "name": "gestor-tokens",
+  "owner": { "name": "Douglas Tudino" },
+  "description": "Plugins do Douglas para usar o Claude Code do jeito certo.",
+  "plugins": [
+    {
+      "name": "gestor-tokens",
+      "source": "./",
+      "description": "Especialista em Claude Code: contexto, sessões, modelos e organização de projetos.",
+      "category": "productivity"
+    }
+  ]
+}
