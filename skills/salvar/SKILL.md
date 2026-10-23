@@ -19,8 +19,10 @@ lendo só a nota. Escreva para quem chega frio.
 4. **Atualize** `.claude/sessoes/ULTIMA.md` para conter só a linha:
    `@.claude/sessoes/<arquivo>.md` (o `@` permite importar a nota direto no CLAUDE.md, se quiser).
 5. **Git**: se `git status` mostra alterações, liste-as na nota. **Não faça commit** sem pedir.
-6. **Confirme** em uma linha: `✅ Sessão salva em .claude/sessoes/<arquivo>.md`
-   e sugira o próximo passo (`/compact` ou `/clear` ou `/rename <Projeto> · <assunto>`).
+6. **Confirme** em uma linha: `✅ Sessão salva em .claude/sessoes/<arquivo>.md`.
+   Se foi o gestor que pediu o salvamento (aviso de contexto), pare aí: a compactação é automática.
+   Se foi o usuário, sugira o próximo passo (`/clear` se vai mudar de assunto, `/rename` se a sessão
+   não tem nome).
 
 ## Modelo da nota
 

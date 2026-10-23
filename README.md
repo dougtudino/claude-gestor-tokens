@@ -48,30 +48,59 @@ Para testar sem instalar: `claude --plugin-dir ./claude-gestor-tokens`.
 | `/gestor-tokens:checkup` | Relatório de consumo com as 3 melhorias de maior impacto |
 | `/gestor-tokens:dicas [tema]` | Dicas de contexto, sessões, memória, modelos, atalhos, hooks, git |
 | `/gestor-tokens:instalar-statusline` | Barra com modelo, contexto colorido, custo e projeto |
+| `/gestor-tokens:supervisionar` | Visão de cima de todas as sessões (feito para rotina diária) |
 
 E o subagente **`gestor-tokens:gestor-tokens`** — chame com "@gestor-tokens" ou peça
 "pergunta pro gestor de tokens…". Ele também é acionado sozinho quando faz sentido.
 
-## O que roda sozinho (hooks)
+## Orgânico: o que roda sem você pedir
+
+Depois de instalar, faça **um** ajuste no `~/.claude/settings.json` para as sessões compactarem
+sozinhas num ponto econômico (sem ele, modelos de 1M só compactam perto de ~967k tokens):
+
+```json
+"autoCompactWindow": 300000
+```
+
+A partir daí, dentro de cada sessão:
 
 | Quando | O quê |
 |---|---|
-| Abrir / `/clear` / retomar | Mostra a última nota do projeto e uma dica |
-| Cada mensagem sua | Mede o contexto; avisa em 60% / 80% da janela (ou 150k / 300k tokens) |
-| Depois de `/compact` | Grava o resumo da compactação em `.claude/sessoes/` |
-| Ao encerrar | Grava nota automática se a sessão teve trabalho e você não salvou |
+| Sessão nova / `/clear` | O Claude **já recebe a última nota do projeto** e as regras de economia. É só dizer "continua" |
+| Toda sessão | Buscas largas vão para subagente **Haiku**; se o modelo não combina com a tarefa, ele sugere o `/model` uma vez |
+| 70% do ponto de compactação | O Claude **salva a nota sozinho**, sem perguntar |
+| 90% | Aviso de compactação iminente |
+| Compactação automática | O resumo vira nota em `.claude/sessoes/` |
+| Ao encerrar | Nota automática, se teve trabalho e ninguém salvou |
+| Entrega grande concluída | O Claude salva a nota sem perguntar |
 
-Nada é criado fora de projetos (pastas sem `.git` nem `.claude/`).
+E **de cima**, o supervisor (`/gestor-tokens:supervisionar`), feito para rodar como rotina diária
+no app desktop:
+
+- mede todas as sessões dos últimos 3 dias **sem gastar tokens** (um script lê as transcrições);
+- grava a nota das sessões pesadas e paradas;
+- renomeia, agrupa por projeto na barra lateral e arquiva as encerradas (PR fechado);
+- recomenda troca de modelo (ex.: Opus fazendo trabalho mecânico → Sonnet, metade do preço);
+- se você tem a skill `organizar-conversas`, usa as convenções dela (e a rodada completa às segundas).
+
+Para agendar, peça no app: *"agenda o /gestor-tokens:supervisionar todo dia às 8h30"*.
+
+O que **não** dá para automatizar (limite do Claude Code): digitar comandos de barra por você
+(`/model`, `/compact`), uma sessão compactar outra, e trocar o modelo de outra sessão sem a sua aprovação.
+
+Nada é criado fora de projetos. Projeto = repositório git (worktrees contam como o repo principal)
+ou pasta com `.claude/` ou `CLAUDE.md` nela mesma.
 
 ### Ajustes por variável de ambiente
 
 | Variável | Padrão | Para quê |
 |---|---|---|
-| `GESTOR_DICA_TOKENS` | `150000` | Tokens para a primeira dica |
-| `GESTOR_AVISO_TOKENS` | `300000` | Tokens para o aviso forte |
-| `GESTOR_JANELA` | detectada pelo modelo | Força o tamanho da janela (ex.: `200000`) |
+| `GESTOR_SALVAR_PCT` | `70` | % do ponto de compactação em que o Claude salva a nota |
+| `GESTOR_URGENTE_PCT` | `90` | % para o aviso de compactação iminente |
+| `GESTOR_PESADA_TOKENS` | `150000` | A partir de quantos tokens o supervisor considera a sessão pesada |
+| `GESTOR_JANELA` | detectada pelo modelo | Força o tamanho da janela do modelo |
 
-Coloque em `~/.claude/settings.json` → `"env": { "GESTOR_AVISO_TOKENS": "250000" }`.
+Coloque em `~/.claude/settings.json` → `"env": { "GESTOR_SALVAR_PCT": "60" }`.
 
 ## O padrão de projeto
 
@@ -107,9 +136,9 @@ Sessões: `<Projeto> · <assunto>` (`/rename`). Uma sessão por assunto.
 ```
 .claude-plugin/   plugin.json + marketplace.json
 agents/           gestor-tokens.md (o especialista)
-skills/           salvar, retomar, compactar, modelo, organizar, checkup, dicas, instalar-statusline
+skills/           salvar, retomar, compactar, modelo, organizar, checkup, dicas, instalar-statusline, supervisionar
 hooks/hooks.json  SessionStart, UserPromptSubmit, PostCompact, SessionEnd
-scripts/          hooks e statusline em Node puro
+scripts/          hooks, statusline e relatorio-sessoes (supervisor) em Node puro
 templates/        CLAUDE.md modelo
 tests/            teste dos hooks: node tests/testar-hooks.js
 PROMPT.md         o prompt-mestre que define o comportamento do agente

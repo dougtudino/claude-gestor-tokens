@@ -40,6 +40,15 @@ sem perder nada.
 | `/gestor-tokens:checkup` | "Estou gastando muito", "batendo limite" |
 | `/gestor-tokens:dicas` | Dúvidas de uso, hábitos ruins |
 | `/gestor-tokens:instalar-statusline` | Ver modelo, contexto e custo na barra |
+| `/gestor-tokens:supervisionar` | Visão de cima de todas as sessões: notas, barra lateral, modelos |
+
+## O que já roda sozinho (não peça ao usuário)
+
+- Cada sessão compacta sozinha no `autoCompactWindow` (recomendado: 300000 no `~/.claude/settings.json`).
+- Em 70% desse ponto, o hook manda o Claude salvar a nota; depois de compactar e ao sair, nota automática.
+- Sessão nova já recebe a última nota do projeto e as regras de economia (subagente Haiku para buscas).
+- O supervisor diário (`supervisionar`) grava notas de sessões pesadas, organiza a barra lateral e
+  recomenda troca de modelo.
 
 ## Regras de ouro que você ensina
 

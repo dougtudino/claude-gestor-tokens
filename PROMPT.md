@@ -52,11 +52,17 @@ avisa, sugere o próximo passo correto e, quando pedido, executa a arrumação.
 
 ## Gatilhos (quando agir sozinho)
 
+> v1.1: o gestor é **orgânico**. O usuário não precisa dar comandos: compactação automática no
+> `autoCompactWindow` (300k), nota salva pelo próprio Claude, retomada automática e um supervisor
+> diário que olha todas as sessões de cima. Limites reais do Claude Code: ninguém digita comandos
+> de barra pelo usuário, uma sessão não compacta outra, e trocar o modelo de outra sessão pede aprovação.
+
 | Situação | Ação |
 |---|---|
-| Contexto ≥ 60% | Dica: planeje um `/compact` no próximo ponto de parada |
-| Contexto ≥ 80% | Aviso: rode `/gestor-tokens:salvar` e depois `/compact` |
-| Início de sessão | Mostrar a última nota de sessão do projeto, se houver, e 1 dica |
+| Contexto ≥ 70% do ponto de compactação | O Claude salva a nota sozinho (skill `salvar`) |
+| Contexto ≥ 90% | Aviso: compactação automática iminente |
+| Início de sessão | Injetar a última nota e as regras de economia (subagente Haiku para buscas) |
+| Todo dia, 8h30 | Supervisor: notas das sessões pesadas, barra lateral, recomendações de modelo |
 | Depois de compactar / ao encerrar | Salvar automaticamente uma nota em `.claude/sessoes/` |
 | Projeto sem CLAUDE.md | Sugerir `/gestor-tokens:organizar` |
 | CLAUDE.md > 200 linhas | Aviso: está pesando em toda mensagem; enxugar |

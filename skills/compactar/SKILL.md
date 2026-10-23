@@ -8,6 +8,10 @@ description: Prepara uma compactação segura da conversa — salva a nota de se
 `/compact` resume a conversa e libera contexto, mas o resumo perde detalhes. A ordem certa é:
 **salvar → compactar com instruções → conferir**.
 
+Com o gestor instalado e `autoCompactWindow` definido, a compactação já acontece sozinha e a nota é
+salva antes e depois. Esta skill é para quando o usuário quer compactar **agora**, com controle do
+que fica (por exemplo, ao mudar de fase).
+
 ## Passos
 
 1. Rode a skill `salvar` (mesmo fluxo de `/gestor-tokens:salvar`) para gravar a nota.
