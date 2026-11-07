@@ -55,6 +55,7 @@ Para testar sem instalar: `claude --plugin-dir ./claude-gestor-tokens`.
 | `/gestor-tokens:dicas [tema]` | Dicas de contexto, sessões, memória, modelos, atalhos, hooks, git |
 | `/gestor-tokens:instalar-statusline` | Barra com modelo, contexto colorido, custo e projeto |
 | `/gestor-tokens:supervisionar` | Visão de cima de todas as sessões (feito para rotina diária) |
+| `/gestor-tokens:maquina [NB\|MAC\|DK\|mapa]` | Nome deste PC na central e mapa das sessões dos 3 PCs |
 
 E o subagente **`gestor-tokens:gestor-tokens`** — chame com "@gestor-tokens" ou peça
 "pergunta pro gestor de tokens…". Ele também é acionado sozinho quando faz sentido.
@@ -75,6 +76,30 @@ Um mod do Claude Code (API de plugins com interface, no app desktop e no termina
 - **Toasts** quando compacta, troca de modelo, etc.
 - "Compactar agora" compacta de verdade (mesma ação do `/compact`), com instruções do que manter.
 - "Depois" não insiste na mesma faixa; volta só na próxima (90%) ou depois de compactar.
+
+## Vários computadores: a central de comando (NB · MAC · DK)
+
+Cada PC ganha um nome curto e todos escrevem numa pasta sincronizada (`_CLAUDE` no Google Drive):
+
+```
+G:\Meu Drive\_CLAUDE├── SESSOES.md                 # o mapa: em que PC está cada sessão, onde parou cada projeto
+├── maquinas.json              # hostname → NB / MAC / DK
+└── sessoes/
+    ├── NB.json  MAC.json  DK.json          # inventário de cada PC
+    └── projetos/<dono-repo>/NB.md, MAC.md  # a última nota de cada projeto, por PC
+```
+
+- **Sessões não viajam** (moram no PC onde nasceram). Viajam o código (git) e a **nota**.
+- Abriu no NB um projeto que você mexeu por último no MAC? Aparece
+  `🛰️ A última vez neste projeto foi no MAC (há 3h)…` e a nota de lá já vem carregada.
+- O supervisor diário de cada PC atualiza o inventário dele e refaz o `SESSOES.md`.
+- Barra de status e regras da sessão mostram o PC: `🖥️ NB · 🧠 Opus …`; nomes de sessão
+  `NB · <Projeto> · <assunto>`.
+- Para a nuvem vai só título, projeto, pasta, horário, contexto, modelo e a nota. Nunca a conversa.
+
+Em cada PC, uma vez: `/gestor-tokens:maquina NB` (ou `MAC`, `DK`). No Mac, a pasta é achada em
+`~/Library/CloudStorage/GoogleDrive-*/Meu Drive/_CLAUDE`. "Onde está aquela sessão?" →
+`/gestor-tokens:maquina mapa` ou o menu `/gestor`.
 
 ## Orgânico: o que roda sem você pedir
 
@@ -122,6 +147,8 @@ ou pasta com `.claude/` ou `CLAUDE.md` nela mesma.
 | `GESTOR_URGENTE_PCT` | `90` | % para o aviso de compactação iminente |
 | `GESTOR_PESADA_TOKENS` | `150000` | A partir de quantos tokens o supervisor considera a sessão pesada |
 | `GESTOR_JANELA` | detectada pelo modelo | Força o tamanho da janela do modelo |
+| `GESTOR_MAQUINA` | `maquina.json` / hostname | Nome deste PC na central |
+| `GESTOR_CENTRAL` | `_CLAUDE` no Google Drive | Pasta sincronizada da central de comando |
 
 Coloque em `~/.claude/settings.json` → `"env": { "GESTOR_SALVAR_PCT": "60" }`.
 
@@ -159,9 +186,9 @@ Sessões: `<Projeto> · <assunto>` (`/rename`). Uma sessão por assunto.
 ```
 .claude-plugin/   plugin.json + marketplace.json
 agents/           gestor-tokens.md (o especialista)
-skills/           salvar, retomar, compactar, modelo, organizar, checkup, dicas, instalar-statusline, supervisionar
+skills/           salvar, retomar, compactar, modelo, organizar, checkup, dicas, instalar-statusline, supervisionar, maquina
 hooks/hooks.json  SessionStart, UserPromptSubmit, PostCompact, SessionEnd
-scripts/          hooks, statusline e relatorio-sessoes (supervisor) em Node puro
+scripts/          hooks, statusline, relatorio-sessoes (supervisor) e central (vários PCs) em Node puro
 templates/        CLAUDE.md modelo
 tests/            teste dos hooks: node tests/testar-hooks.js
 popups/           plugin gestor-popups (mod): hooks/register.tsx + tests (claude plugin test ./popups)

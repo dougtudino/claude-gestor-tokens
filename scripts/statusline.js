@@ -3,6 +3,7 @@
 // Autocontido de propósito: a skill instalar-statusline copia só este arquivo para ~/.claude/.
 'use strict';
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const COR = { verde: '\x1b[32m', amarelo: '\x1b[33m', vermelho: '\x1b[31m', cinza: '\x1b[90m', fim: '\x1b[0m' };
@@ -50,7 +51,11 @@ function main() {
   const barra = '█'.repeat(cheios) + '░'.repeat(10 - cheios);
   const ctx = `${cor}${barra} ${pct}%${COR.fim} ${COR.cinza}(${k(usados)}/${k(janela)})${COR.fim}`;
 
-  const partes = [`🧠 ${modelo}`, ctx];
+  // Nome do PC na central de comando (NB, MAC, DK), gravado por scripts/maquina.js.
+  let pc = '';
+  try { pc = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude', 'gestor-tokens', 'maquina.json'), 'utf8')).nome || ''; } catch { /* sem nome */ }
+
+  const partes = [`${pc ? `🖥️ ${pc} · ` : ''}🧠 ${modelo}`, ctx];
   const custo = d.cost && d.cost.total_cost_usd;
   if (typeof custo === 'number') partes.push(`$${custo.toFixed(2)}`);
 

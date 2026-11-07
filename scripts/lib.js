@@ -137,7 +137,7 @@ function escreverNotaAutomatica({ entradas, raiz, sufixo, motivo, sessionId, res
 
   const linhas = [
     `# ${path.basename(raiz)} · nota automática`,
-    `Data: ${c.data} ${c.hora} · Modelo: ${modelo} · Branch: ${branch} · Motivo: ${motivo}`,
+    `Data: ${c.data} ${c.hora} · PC: ${require('./central').maquina().nome} · Modelo: ${modelo} · Branch: ${branch} · Motivo: ${motivo}`,
     '',
     '> Gerada pelo gestor-tokens a partir da transcrição. Para uma nota completa (decisões, pendências,',
     '> próximo passo), rode `/gestor-tokens:salvar`.',

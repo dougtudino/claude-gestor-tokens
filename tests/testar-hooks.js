@@ -18,9 +18,15 @@ fs.mkdirSync(path.join(PROJ, '.git'), { recursive: true });
 fs.mkdirSync(DADOS, { recursive: true });
 
 // Ambiente previsível: ponto de compactação em 200k, sem herdar ajustes do usuário.
+// Casa e central de comando falsas: nada dos testes vai para o Drive de verdade.
+const CASA = path.join(TMP, 'casa');
+const CENTRAL = path.join(TMP, 'central');
+fs.mkdirSync(CASA, { recursive: true });
+fs.mkdirSync(CENTRAL, { recursive: true });
 const ENV = {
   ...process.env, CLAUDE_PLUGIN_DATA: DADOS, CLAUDE_CODE_AUTO_COMPACT_WINDOW: '200k',
   GESTOR_JANELA: '', GESTOR_SALVAR_PCT: '', GESTOR_URGENTE_PCT: '',
+  HOME: CASA, USERPROFILE: CASA, GESTOR_CENTRAL: CENTRAL, GESTOR_MAQUINA: 'NB',
 };
 
 let n = 0;
@@ -178,11 +184,51 @@ caso('statusline formata modelo, contexto, custo e projeto', () => {
       cost: { total_cost_usd: 1.84 },
       workspace: { project_dir: PROJ },
     }),
-    encoding: 'utf8',
+    env: ENV, encoding: 'utf8',
   });
   const limpo = out.replace(/\x1b\[\d+m/g, '');
   assert.match(limpo, /🧠 Sonnet 5\.5 · ██████░░░░ 62% \(124k\/200k\) · \$1\.84 · 📁 projeto-teste/);
   assert.match(limpo, /sem nome → \/rename/);
+});
+
+caso('central: a nota do MAC aparece quando o mesmo projeto abre no NB', () => {
+  // Mesmo repositório (mesmo origin) em pastas diferentes, uma por PC.
+  const clone = nome => {
+    const d = path.join(TMP, nome, 'meu-app');
+    fs.mkdirSync(path.join(d, '.git'), { recursive: true });
+    fs.writeFileSync(path.join(d, '.git', 'config'),
+      ['[core]', '\tbare = false', '[remote "origin"]', '\turl = https://github.com/dono/Meu-App.git', ''].join('\n'));
+    return d;
+  };
+  const noMac = clone('mac');
+  const noNb = clone('nb');
+  const mac = { ...ENV, GESTOR_MAQUINA: 'MAC' };
+  execFileSync('node', [path.join(RAIZ_PLUGIN, 'scripts', 'autosalvar.js'), 'compact'], {
+    input: JSON.stringify({ session_id: 'sessao-mac', cwd: noMac, transcript_path: transcricao(130000, { cwd: noMac }) }),
+    env: mac,
+  });
+  const copia = path.join(CENTRAL, 'sessoes', 'projetos', 'dono-meu-app', 'MAC.md');
+  assert.ok(fs.existsSync(copia), 'nota publicada na central');
+  assert.match(fs.readFileSync(copia, 'utf8'), /PC: MAC/);
+  const inv = JSON.parse(fs.readFileSync(path.join(CENTRAL, 'sessoes', 'MAC.json'), 'utf8'));
+  assert.strictEqual(inv.sessoes[0].sessionId, 'sessao-mac');
+  assert.ok(!JSON.stringify(inv).includes('login com Google'), 'nenhum pedido do usuário vai para a nuvem');
+  assert.match(fs.readFileSync(path.join(CENTRAL, 'SESSOES.md'), 'utf8'), /\| meu-app \| MAC \(1\) \| MAC, há/);
+
+  const r = rodar('inicio-sessao.js', { session_id: 'sessao-nb', cwd: noNb, source: 'startup' });
+  assert.match(r.systemMessage, /🛰️ A última vez neste projeto foi no MAC/);
+  assert.match(r.hookSpecificOutput.additionalContext, /escrita no computador MAC/);
+  assert.match(r.hookSpecificOutput.additionalContext, /Este computador é o NB/);
+});
+
+caso('maquina.js grava o nome do PC e registra o hostname na central', () => {
+  const out = execFileSync('node', [path.join(RAIZ_PLUGIN, 'scripts', 'maquina.js'), '--nome', 'dk', '--descricao', 'Desktop da imobiliária'],
+    { env: { ...ENV, GESTOR_MAQUINA: '' }, encoding: 'utf8' });
+  assert.match(out, /PC: DK — Desktop da imobiliária/);
+  const mapa = JSON.parse(fs.readFileSync(path.join(CENTRAL, 'maquinas.json'), 'utf8'));
+  assert.strictEqual(mapa[require('os').hostname().replace(/\.local$/, '')].nome, 'DK');
+  const s = execFileSync('node', [path.join(RAIZ_PLUGIN, 'scripts', 'statusline.js')], { input: '{}', env: ENV, encoding: 'utf8' });
+  assert.match(s, /🖥️ DK · 🧠/);
 });
 
 caso('entrada vazia nunca quebra', () => {

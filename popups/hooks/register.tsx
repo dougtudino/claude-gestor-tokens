@@ -20,6 +20,7 @@ const MENU = {
   'Compactar agora': '',
   'Checkup de consumo': '/gestor-tokens:checkup',
   'Supervisionar sessões': '/gestor-tokens:supervisionar',
+  'Onde estão minhas sessões (NB · MAC · DK)': '/gestor-tokens:maquina mapa',
 } as const
 
 function k(n: number): string {

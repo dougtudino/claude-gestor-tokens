@@ -19,6 +19,8 @@ lendo só a nota. Escreva para quem chega frio.
 4. **Atualize** `.claude/sessoes/ULTIMA.md` para conter só a linha:
    `@.claude/sessoes/<arquivo>.md` (o `@` permite importar a nota direto no CLAUDE.md, se quiser).
 5. **Git**: se `git status` mostra alterações, liste-as na nota. **Não faça commit** sem pedir.
+   Se há commits sem push, diga na nota: em outro PC o código não vai estar lá.
+   A nota segue sozinha para a central (`_CLAUDE` no Drive) ao fim da sessão, para os outros PCs.
 6. **Confirme** em uma linha: `✅ Sessão salva em .claude/sessoes/<arquivo>.md`.
    Se foi o gestor que pediu o salvamento (aviso de contexto), pare aí: a compactação é automática.
    Se foi o usuário, sugira o próximo passo (`/clear` se vai mudar de assunto, `/rename` se a sessão
@@ -28,7 +30,7 @@ lendo só a nota. Escreva para quem chega frio.
 
 ```markdown
 # <Projeto> · <assunto>
-Data: AAAA-MM-DD HH:MM · Modelo: <modelo atual> · Branch: <branch ou "sem git">
+Data: AAAA-MM-DD HH:MM · PC: <NB|MAC|DK — o das regras da sessão> · Modelo: <modelo atual> · Branch: <branch ou "sem git">
 
 ## Objetivo
 <1 a 3 linhas: o que o usuário quer no fim>

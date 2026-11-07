@@ -5,18 +5,23 @@ description: Supervisor de todas as sessões do Claude Code nesta máquina — m
 
 # Supervisor de sessões
 
+Roda em cada PC (NB, MAC, DK): cuida das sessões deste PC e atualiza o mapa dos três.
+
 Você olha o Claude Code de cima. Seja barato: **não abra transcrições**; o script já mede tudo.
 A rodada inteira deve caber em poucas chamadas de ferramenta e terminar com um relatório curto.
 
 ## 1. Medir (sem tokens)
 
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/relatorio-sessoes.js" --dias 3 --gravar
+node "${CLAUDE_PLUGIN_ROOT}/scripts/relatorio-sessoes.js" --dias 3 --gravar --central
 ```
 
 A tabela traz, por sessão: projeto, título, parada há quanto tempo, contexto (% do ponto de
 compactação), modelo, nº de pedidos, nota e último pedido. Com `--gravar`, o script já gravou a
 nota em `.claude/sessoes/` de toda sessão pesada (≥150k), parada há 2h+ e sem nota recente.
+Com `--central`, publica o inventário deste PC e as notas na pasta `_CLAUDE` do Drive e refaz o
+`SESSOES.md` com os três PCs (NB, MAC, DK). A primeira linha diz em que PC você está. Se ela disser
+que não há central ou nome, rode a skill `gestor-tokens:maquina` antes.
 
 ## 2. Organizar a barra lateral (app desktop)
 
@@ -30,8 +35,9 @@ ela é a dona das convenções (nomes de pastas, MAPA, conversa de comando).
 
 **Versão leve** (também é o padrão quando a `organizar-conversas` não existe):
 1. `list_sessions` (limite 100) e `list_groups`. Cruze com a tabela pelo `cwd` e título.
-2. **Renomear** sessão com título genérico ou enganoso para `<Projeto> · <assunto>` (assunto tirado
-   do último pedido). Não renomeie título que o usuário escreveu e que já diz o que é, nem rodada de rotina.
+2. **Renomear** sessão com título genérico ou enganoso para `<PC> · <Projeto> · <assunto>` (assunto
+   tirado do último pedido; PC = o da primeira linha do relatório). Título bom sem o PC: só acrescente
+   `<PC> · ` na frente. Não renomeie rodada de rotina.
 3. **Agrupar** sessão sem grupo na pasta do projeto (`move_sessions`). Projeto com 2+ sessões ganha
    pasta própria; com 1, vai para `Outros projetos`. Mover tira o fixado: se estava fixada, `set_pinned`
    de novo.
@@ -59,6 +65,7 @@ Sessões ativas: <N> (<P> pesadas) · notas gravadas: <K>
 Organizado: <renomeadas> renomeadas · <agrupadas> agrupadas · <arquivadas> arquivadas (<motivos>)
 Modelo: <sessão> está em Opus fazendo <tipo> → Sonnet economiza ~50%
 Atenção: <sessão> em <X>% — vai compactar na próxima mensagem; se o assunto acabou, /clear
+Outros PCs: <MAC: N sessões, sincronizou há X · DK: ...> (tabela Computadores do SESSOES.md; "não sincroniza há 3d+" é aviso)
 Depende de você: <decisões que só o usuário toma, ou "nada">
 ```
 

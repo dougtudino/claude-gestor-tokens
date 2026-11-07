@@ -7,6 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const L = require('./lib');
+const C = require('./central');
 
 const args = process.argv.slice(2);
 const opt = (nome, padrao) => {
@@ -16,6 +17,7 @@ const opt = (nome, padrao) => {
 const DIAS = parseFloat(opt('--dias', '3'));
 const GRAVAR = args.includes('--gravar');
 const JSON_SAIDA = args.includes('--json');
+const CENTRAL = args.includes('--central');
 const PASTA = opt('--pasta', path.join(os.homedir(), '.claude', 'projects'));
 const PESADA_TOKENS = parseInt(process.env.GESTOR_PESADA_TOKENS || '150000', 10);
 const PARADA_MS = 2 * 3600 * 1000; // só mexe em sessão parada há 2h+ (não atrapalha quem está trabalhando)
@@ -84,11 +86,19 @@ function horas(min) {
 
 function main() {
   const sessoes = transcricoesRecentes().map(analisar).filter(s => s.pedidos > 0);
+  const m = C.maquina();
+  let mapa = null;
+  if (CENTRAL && m.central) {
+    // Inventário deste PC, última nota de cada projeto e o mapa dos três PCs.
+    for (const raiz of new Set(sessoes.map(s => s.raiz).filter(Boolean))) C.publicarNota(raiz, L.ultimaNota(raiz), m);
+    C.gravarInventario(sessoes.map(s => C.resumoDaSessao(s, s.raiz)), {}, m);
+    mapa = C.gerarMapa(m);
+  }
   if (JSON_SAIDA) {
     process.stdout.write(JSON.stringify(sessoes, null, 1));
     return;
   }
-  const linhas = [`SESSÕES COM ATIVIDADE NOS ÚLTIMOS ${DIAS} DIAS: ${sessoes.length}`, ''];
+  const linhas = [`PC ${m.nome}${m.descricao ? ' (' + m.descricao + ')' : ''} · SESSÕES COM ATIVIDADE NOS ÚLTIMOS ${DIAS} DIAS: ${sessoes.length}`, ''];
   linhas.push('projeto | título | id | parada há | contexto (% do ponto de compactação) | modelo | pedidos | nota | último pedido');
   for (const s of sessoes) {
     const ctx = s.tokens ? `${L.fmtTokens(s.tokens)} (${s.pct}%)` : '-';
@@ -101,6 +111,7 @@ function main() {
   const pesadas = sessoes.filter(s => s.tokens >= PESADA_TOKENS);
   const gravadas = sessoes.filter(s => s.notaGravada);
   linhas.push('', `Pesadas (≥ ${L.fmtTokens(PESADA_TOKENS)}): ${pesadas.length} · Notas gravadas agora: ${gravadas.length}`);
+  if (CENTRAL) linhas.push(mapa ? `Central: mapa dos PCs em ${mapa}` : 'Central: nenhuma pasta configurada (node maquina.js --central <pasta>)');
   process.stdout.write(linhas.join('\n') + '\n');
 }
 
